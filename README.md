@@ -19,11 +19,11 @@ The API is very simple, the only functions you need are the following:
 - `shadows.End()                   :: Renders the shadow, resets everything to normal`
 - `shadows.SetOpacity(float)       :: Sets the opacity of the current shadow, alpha, 0 to 255`
 - `shadows.SetIntensity(int)       :: Sets the intensity of the current shadow, how many render passes`
-- `shadows.SetSpread(int)          :: Sets the spread of the shadow, how far it should expand from the center`
-- `shadows.SetBlur(int)            :: Sets the amount of blur passes`
+- `shadows.SetSpread(int) :: Sets the spread of the shadow, how far it should expand from the center`
+- `shadows.SetBlur(int)   :: Sets the amount of blur passes`
 - `shadows.SetRelative(Panel)      :: Panel that the shadow should be positioned relative to`
 - `shadows.SetRenderedAt(int, int) :: Use in conjunction with SetRelative, where the shadow was drawn, see the examples`
-- `shadows.Dirty()                 :: Use in conjunction with SetRelative, call in PerformLayout or whenever you need`
+- `shadows.Dirty() :: Use in conjunction with SetRelative, call in PerformLayout or whenever you need`
 - `shadows.SetOffset(int, int)     :: X, Y offset of the shadow`
 
 Internal functions can be read about in the source :)
