@@ -9,7 +9,7 @@
 local shadows = {}
 
 shadows.RenderTarget = GetRenderTarget("MelonsShadows", ScrW(), ScrH())
-shadows.Material = CreateMaterial("MelonsShadows" .. CurTime(), "UnlitGeneric", {
+shadows.Material = CreateMaterial("MelonsShadows", "UnlitGeneric", {
     ["$basetexture"] = shadows.RenderTarget:GetName(),
     ["$transparent"] = "1",
     ["$color"] = "1",
@@ -42,7 +42,7 @@ function shadows.Start(name)
 
         at_x = 0,
         at_y = 0,
-        
+
         xoffset = 0,
         yoffset = 0
     }
@@ -73,7 +73,7 @@ function shadows.End()
     end
 
     render.PopRenderTarget()
- 
+
     shadows.Render()
 
     cam.End2D()
@@ -89,10 +89,10 @@ function shadows.Render()
     local c = shadows.Current
     shadows.Material:SetFloat("$alpha", c.opacity / 255)
     render.SetMaterial(shadows.Material)
-    
+
     local x, y = 0, 0
     local w, h = ScrW(), ScrH()
-    
+
     if IsValid(c.relative) then
         x, y = c.relative:LocalToScreen(0, 0)
         x = x - c.at_x
@@ -208,7 +208,7 @@ melon.DebugPanel("Melon:Draggable", function(pnl)
 
             shadows.End()
         end
-        
+
         surface.SetDrawColor(255, 255, 255)
         surface.DrawOutlinedRect(0, 0, w, h, w / 4)
     end
