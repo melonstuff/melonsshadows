@@ -122,6 +122,15 @@ function shadows.StateAccessor(key)
     end
 end
 
+----
+---@name shadows.Dirty
+----
+---- Dirties the current shadow render
+----
+function shadows.Dirty()
+    shadows.LastRendered = false
+end
+
 ---@type function 
 ---@name shadows.SetOpacity
 ---@arg (opacity: number) How opaque should the shadow be 0 -> 255
@@ -168,6 +177,8 @@ end
 ---@arg (y: number) Y position for the offset of the shadow
 ----
 function shadows.SetOffset(x, y)
+    shadows.Dirty() -- this fixes a potential bug that i havent encountered yet lol
+
     shadows.Current.xoffset = x
     shadows.Current.yoffset = y
 end
@@ -177,40 +188,110 @@ end
 --- Tests depend on Melonlib
 if not melon then return shadows end
 
+--- Basic Example
+melon.DebugHook(false, "HUDPaint", function()
+    shadows.Start()                 -- First, we start the render
+        shadows.SetOpacity(100)     -- Next we set the opacity of the shadow
+        shadows.SetIntensity(3)     -- Then we set how intense it should be, think how many layers of it
+        shadows.SetSpread(4)        -- How far should it spread away from the center
+        shadows.SetBlur(1)          -- How many times should it be blurred, how many passes
+        shadows.SetOffset(10, 10)   -- What should the X and Y offset be for the shadow
+
+        -- Then we draw what we want the shadow to look like
+
+        surface.SetDrawColor(255, 0, 0)
+        surface.DrawRect(50, 50, 150, 50)
+
+        surface.SetDrawColor(0, 255, 0)
+        surface.DrawRect(50, 100, 150, 50)
+
+        surface.SetDrawColor(0, 0, 255)
+        surface.DrawRect(50, 150, 150, 50)
+    shadows.End()                   -- Then we end the render
+
+    -- Now we draw over it and were done
+    draw.RoundedBox(8, 50, 50, 150, 150, Color(22, 22, 22))
+end )
+
+--- Caching Example
+melon.DebugHook(false, "HUDPaint", function()
+    -- Were now asking it if we should render the shadow
+    if shadows.Start("identifier") then
+        -- If we should then we do the exact same as before
+
+        shadows.SetOpacity(100)
+        shadows.SetIntensity(3)
+        shadows.SetSpread(4)
+        shadows.SetBlur(1)
+        shadows.SetOffset(10, 10)
+
+        surface.SetDrawColor(255, 0, 0)
+        surface.DrawRect(50, 50, 150, 50)
+
+        surface.SetDrawColor(0, 255, 0)
+        surface.DrawRect(50, 100, 150, 50)
+
+        surface.SetDrawColor(0, 0, 255)
+        surface.DrawRect(50, 150, 150, 50)
+
+        -- Notice how were ending inside the block
+        shadows.End()
+    end
+
+    -- And now continue what you were doing
+    draw.RoundedBox(8, 50, 50, 150, 150, Color(22, 22, 22))
+
+    -- This change of 2 lines *can* immediately eliminate all fps drops from the shadow
+    -- as were actually rendering it once
+end )
+
+--- Panel Example
 melon.DebugPanel("Melon:Draggable", function(pnl)
-    pnl:SetSize(512, 512)
+    pnl:SetSize(150, 150)
     pnl:Center()
+    -- pnl:SetPos(50, 50 + 200)
     pnl:SetAlpha(255)
 
     function pnl:Paint(w, h)
+        -- We need to know the position of the panel in screenspace
+        -- Its silly but it is what it is
         local x, y = self:LocalToScreen(0, 0)
 
-        if shadows.Start("This is all FREE TO RENDER!!!!!!!!") then
-            shadows.SetOpacity(255)
-            shadows.SetIntensity(2)
-            shadows.SetSpread(10)
-            shadows.SetBlur(4)
-            shadows.SetRelative(self)
-            shadows.SetRenderedAt(x, y)
-            shadows.SetOffset(60, 20)
+        -- See the caching example
+        -- Everythings the same here
+        if shadows.Start("identifier") then
+            shadows.SetOpacity(100)
+            shadows.SetIntensity(3)
+            shadows.SetSpread(4)
+            shadows.SetBlur(1)
+            shadows.SetOffset(10, 10)
 
-            melon.stencil.Start()
-                surface.DrawOutlinedRect(x, y, w, h, w / 4)
-            melon.stencil.Cut()
-                surface.SetMaterial(melon.Material("vgui/gradient-u"))
-                surface.SetDrawColor(255, 0, 0)
-                surface.DrawTexturedRectRotated(x + w / 2, y + h / 2, w * 2, h * 2, 45)
-                surface.SetDrawColor(0, 255, 0)
-                surface.DrawTexturedRectRotated(x + w / 2, y + h / 2, w * 2, h * 2, 45 + 90)
-                surface.SetDrawColor(0, 0, 255)
-                surface.DrawTexturedRectRotated(x + w / 2, y + h / 2, w * 2, h * 2, 45 + 180)
-            melon.stencil.End()
+            -- Until here, which is where we tell it a few things
+            -- That we want to track the position of the panel were rendering on
+            shadows.SetRelative(self)
+
+            -- And that we already rendered at this position, so we can know
+            -- when the panel has moved from that position
+            shadows.SetRenderedAt(x, y)
+
+            -- Everything else is equivalent to the HUDPaint examples.
+            surface.SetDrawColor(255, 0, 0)
+            surface.DrawRect(x, y + 0, w, h / 3)
+
+            surface.SetDrawColor(0, 255, 0)
+            surface.DrawRect(x, y + h / 3, w, h / 3)
+
+            surface.SetDrawColor(0, 0, 255)
+            surface.DrawRect(x, y + (h / 3) * 2, w, h / 3)
 
             shadows.End()
         end
 
-        surface.SetDrawColor(255, 255, 255)
-        surface.DrawOutlinedRect(0, 0, w, h, w / 4)
+        draw.RoundedBox(8, 0, 0, w, h, Color(22, 22, 22))
+    end
+
+    function pnl:PerformLayout(w, h)
+        shadows.Dirty()
     end
 end )
 
