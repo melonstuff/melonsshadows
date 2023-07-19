@@ -175,7 +175,7 @@ end
 
 --- Testing ---
 --- Tests depend on Melonlib
-if not melon then return end
+if not melon then return shadows end
 
 melon.DebugPanel("Melon:Draggable", function(pnl)
     pnl:SetSize(512, 512)
@@ -213,3 +213,5 @@ melon.DebugPanel("Melon:Draggable", function(pnl)
         surface.DrawOutlinedRect(0, 0, w, h, w / 4)
     end
 end )
+
+return shadows
