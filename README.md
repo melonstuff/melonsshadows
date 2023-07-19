@@ -156,4 +156,5 @@ draw.RoundedBox(8, 0, 0, w, h, Color(22, 22, 22))
 
 # Notes
 This library is essentially BShadows without the limitations imposed by the library itself, such as greyscale shadows only. The only thing that this library is missing that BShadows has is the `_shadowOnly` parameter, if you are blurring your shadow it shouldnt have a large impact visually for alpha but if you need that, sorry.  
-Massive respect to Code Blue, BShadows is fantastic but old, so here we are :)
+Massive respect to Code Blue, BShadows is fantastic but old, so here we are :)  
+Some potential future optimizations could be only rendering the intensity level once instead of in `Render` and creating a RT for each shadow although thats really iffy if i wanna do that and just swap around basetexture.
